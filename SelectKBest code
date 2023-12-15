@@ -1,0 +1,28 @@
+menfrom sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the Iris dataset
+iris = load_iris()
+X, y = iris.data, iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature selection using SelectKBest with ANOVA F-value scoring function
+k_best = SelectKBest(score_func=f_classif, k=2)  # Select top 2 features
+X_train_kbest = k_best.fit_transform(X_train, y_train)
+X_test_kbest = k_best.transform(X_test)
+
+# Initialize and train a Random Forest Classifier with selected features
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train_kbest, y_train)
+
+# Make predictions on the test set using the classifier with selected features
+y_pred = clf.predict(X_test_kbest)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy with SelectKBest and RandomForestClassifier: {accuracy:.4f}")
